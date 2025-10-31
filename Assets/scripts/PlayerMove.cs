@@ -33,7 +33,7 @@ public class PlayerMove : MonoBehaviour
             checkWalk = false;
 
         }
-        if (touchpad.axis.magnitude > 0.1f);
+        if (touchpad.axis.magnitude > 0.1f)
 		{
             if (checkWalk)
             {

@@ -16,7 +16,7 @@ namespace Valve.VR.InteractionSystem
 		public Rigidbody arrowHeadRB;
 		public Rigidbody shaftRB;
 
-		public PhysicsMaterial targetPhysMaterial;
+		public PhysicMaterial targetPhysMaterial;
 
 		private Vector3 prevPosition;
 		private Quaternion prevRotation;
@@ -48,8 +48,8 @@ namespace Valve.VR.InteractionSystem
         private void Awake()
         {
             initialMass = shaftRB.mass;
-            initialDrag = shaftRB.linearDamping;
-            initialAngularDrag = shaftRB.angularDamping;
+            initialDrag = shaftRB.drag;
+            initialAngularDrag = shaftRB.angularDrag;
             initialInterpolation = shaftRB.interpolation;
             initialCollisionDetection = shaftRB.collisionDetectionMode;
             initialUseGravity = shaftRB.useGravity;
@@ -70,7 +70,7 @@ namespace Valve.VR.InteractionSystem
 			{
 				prevPosition = transform.position;
 				prevRotation = transform.rotation;
-				prevVelocity = shaftRB.linearVelocity;
+				prevVelocity = shaftRB.velocity;
 				prevHeadPosition = arrowHeadRB.transform.position;
 				travelledFrames++;
 			}
@@ -85,8 +85,8 @@ namespace Valve.VR.InteractionSystem
                 shaftRB = rb;
 
             shaftRB.mass = initialMass;
-            shaftRB.linearDamping = initialDrag;
-            shaftRB.angularDamping = initialAngularDrag;
+            shaftRB.drag = initialDrag;
+            shaftRB.angularDrag = initialAngularDrag;
 			shaftRB.interpolation = initialInterpolation;
 			shaftRB.collisionDetectionMode = initialCollisionDetection;
             shaftRB.useGravity = initialUseGravity;
@@ -128,7 +128,7 @@ namespace Valve.VR.InteractionSystem
 			prevPosition = transform.position;
 			prevRotation = transform.rotation;
 			prevHeadPosition = arrowHeadRB.transform.position;
-			prevVelocity = GetComponent<Rigidbody>().linearVelocity;
+			prevVelocity = GetComponent<Rigidbody>().velocity;
 
             SetCollisionMode(CollisionDetectionMode.ContinuousDynamic);
 
@@ -152,7 +152,7 @@ namespace Valve.VR.InteractionSystem
 			if ( inFlight )
 			{
 				Rigidbody rb = GetComponent<Rigidbody>();
-				float rbSpeed = rb.linearVelocity.sqrMagnitude;
+				float rbSpeed = rb.velocity.sqrMagnitude;
 				bool canStick = ( targetPhysMaterial != null && collision.collider.sharedMaterial == targetPhysMaterial && rbSpeed > 0.2f );
 				bool hitBalloon = collision.collider.gameObject.GetComponent<Balloon>() != null;
 
@@ -162,9 +162,9 @@ namespace Valve.VR.InteractionSystem
 					transform.position = prevPosition - prevVelocity * Time.deltaTime;
 					transform.rotation = prevRotation;
 
-					Vector3 reflfectDir = Vector3.Reflect( arrowHeadRB.linearVelocity, collision.contacts[0].normal );
-					arrowHeadRB.linearVelocity = reflfectDir * 0.25f;
-					shaftRB.linearVelocity = reflfectDir * 0.25f;
+					Vector3 reflfectDir = Vector3.Reflect( arrowHeadRB.velocity, collision.contacts[0].normal );
+					arrowHeadRB.velocity = reflfectDir * 0.25f;
+					shaftRB.velocity = reflfectDir * 0.25f;
 
 					travelledFrames = 0;
 					return;
@@ -208,7 +208,7 @@ namespace Valve.VR.InteractionSystem
 					// Revert my physics properties cause I don't want balloons to influence my travel
 					transform.position = prevPosition;
 					transform.rotation = prevRotation;
-					arrowHeadRB.linearVelocity = prevVelocity;
+					arrowHeadRB.velocity = prevVelocity;
 					Physics.IgnoreCollision( arrowHeadRB.GetComponent<Collider>(), collision.collider );
 					Physics.IgnoreCollision( shaftRB.GetComponent<Collider>(), collision.collider );
 				}
@@ -261,13 +261,13 @@ namespace Valve.VR.InteractionSystem
 
             SetCollisionMode(CollisionDetectionMode.Discrete, true);
 
-            shaftRB.linearVelocity = Vector3.zero;
+            shaftRB.velocity = Vector3.zero;
 			shaftRB.angularVelocity = Vector3.zero;
 			shaftRB.isKinematic = true;
 			shaftRB.useGravity = false;
 			shaftRB.transform.GetComponent<BoxCollider>().enabled = false;
 
-			arrowHeadRB.linearVelocity = Vector3.zero;
+			arrowHeadRB.velocity = Vector3.zero;
 			arrowHeadRB.angularVelocity = Vector3.zero;
 			arrowHeadRB.isKinematic = true;
 			arrowHeadRB.useGravity = false;
