@@ -60,6 +60,26 @@
       "requirement": "mandatory"
     },
     {
+      "name": "/actions/default/in/PlayerMove",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/default/in/PlayerRotate",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/default/in/cooldown",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/default/in/JumpAction",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/default/in/ddd",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },

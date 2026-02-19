@@ -100,9 +100,9 @@ namespace Valve.VR.InteractionSystem
 		void FixedUpdate()
 		{
 			// Slow-clamp velocity
-			if ( balloonRigidbody.linearVelocity.sqrMagnitude > maxVelocity )
+			if ( balloonRigidbody.velocity.sqrMagnitude > maxVelocity )
 			{
-				balloonRigidbody.linearVelocity *= 0.97f;
+				balloonRigidbody.velocity *= 0.97f;
 			}
 		}
 
@@ -155,9 +155,9 @@ namespace Valve.VR.InteractionSystem
 				return;
 			}
 
-			if ( balloonRigidbody.linearVelocity.magnitude > ( maxVelocity * 10 ) )
+			if ( balloonRigidbody.velocity.magnitude > ( maxVelocity * 10 ) )
 			{
-				balloonRigidbody.linearVelocity = balloonRigidbody.linearVelocity.normalized * maxVelocity;
+				balloonRigidbody.velocity = balloonRigidbody.velocity.normalized * maxVelocity;
 			}
 
 			if ( hand != null )

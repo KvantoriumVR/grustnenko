@@ -128,7 +128,7 @@ namespace Valve.VR.InteractionSystem.Sample
 
             float angle = maxAngle * steer.x;
 
-            speed = transform.InverseTransformVector(body.linearVelocity).z;
+            speed = transform.InverseTransformVector(body.velocity).z;
 
             float forw = Mathf.Abs(speed);
 

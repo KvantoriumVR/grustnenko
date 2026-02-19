@@ -155,7 +155,7 @@ namespace Valve.VR.InteractionSystem
             Vector3 velocity = fromHand.GetTrackedObjectVelocity(timeOffset);
             velocity *= throwable.scaleReleaseVelocity;
 
-            debugCopy.rigidbody.linearVelocity = velocity;
+            debugCopy.rigidbody.velocity = velocity;
 
             return debugCopy;
         }

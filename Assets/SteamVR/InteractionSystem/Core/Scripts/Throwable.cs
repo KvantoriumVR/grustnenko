@@ -99,7 +99,7 @@ namespace Valve.VR.InteractionSystem
 
                 if ( bestGrabType != GrabTypes.None )
 				{
-					if (rigidbody.linearVelocity.magnitude >= catchingThreshold)
+					if (rigidbody.velocity.magnitude >= catchingThreshold)
 					{
 						hand.AttachObject( gameObject, bestGrabType, attachmentFlags );
 						showHint = false;
@@ -174,7 +174,7 @@ namespace Valve.VR.InteractionSystem
 
             GetReleaseVelocities(hand, out velocity, out angularVelocity);
 
-            rigidbody.linearVelocity = velocity;
+            rigidbody.velocity = velocity;
             rigidbody.angularVelocity = angularVelocity;
         }
 
@@ -197,7 +197,7 @@ namespace Valve.VR.InteractionSystem
                     {
                         Debug.LogWarning("[SteamVR Interaction System] Throwable: No Velocity Estimator component on object but release style set to short estimation. Please add one or change the release style.");
 
-                        velocity = rigidbody.linearVelocity;
+                        velocity = rigidbody.velocity;
                         angularVelocity = rigidbody.angularVelocity;
                     }
                     break;
@@ -210,7 +210,7 @@ namespace Valve.VR.InteractionSystem
                     break;
                 default:
                 case ReleaseStyle.NoChange:
-                    velocity = rigidbody.linearVelocity;
+                    velocity = rigidbody.velocity;
                     angularVelocity = rigidbody.angularVelocity;
                     break;
             }
