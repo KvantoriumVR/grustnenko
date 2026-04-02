@@ -227,6 +227,63 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.02860235, y: 0.030388933, z: 0.033758577}
   m_Center: {x: -0.00000016763806, y: -0.00009258554, z: 0.00003551318}
+--- !u!1001 &186041461
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1576220269632116128, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_Name
+      value: Player2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 25.76
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 18.80199
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5658663396156467023, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 98c3a5d3e7c772d4fb6606b1986ae07c, type: 3}
 --- !u!1 &253283598
 GameObject:
   m_ObjectHideFlags: 0
@@ -4000,7 +4057,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f45facc01772ba47a9ae17bb7061b71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 114963310172408287}
+  character: {fileID: 0}
   groundCheck: {fileID: 114503056852545859}
   stepAudio: {fileID: 3404824664808734124}
   runningAudio: {fileID: 556619296097885377}
@@ -4010,13 +4067,13 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 9fcb6dc763cd0354da305b5de2091287, type: 3}
   - {fileID: 8300000, guid: ab9637a2491abbf4ca9c9601321cbb88, type: 3}
   - {fileID: 8300000, guid: 50b288ce0d5ac1e439827c5365c74c31, type: 3}
-  jump: {fileID: 114497867725622311}
+  jump: {fileID: 0}
   jumpAudio: {fileID: 8216084725044142750}
   jumpSFX:
   - {fileID: 8300000, guid: 3888a1e1c52793144a6d07b8c508772e, type: 3}
   - {fileID: 8300000, guid: 5b26cf3cd5f6b914a80e6d3476caaf86, type: 3}
   - {fileID: 8300000, guid: b16dc74b7376aca46bd0c6be96c940fa, type: 3}
-  crouch: {fileID: 114762042732597261}
+  crouch: {fileID: 0}
   crouchStartAudio: {fileID: 490033797}
   crouchedAudio: {fileID: 3262163692148524805}
   crouchEndAudio: {fileID: 7563556067951725657}
@@ -39513,7 +39570,7 @@ MonoBehaviour:
   _attackDamage: 1
   _attackCooldown: 1
   _rotationSpeed: 5
-  _target: {fileID: 4207292820829163}
+  _target: {fileID: 0}
   _agent: {fileID: 8429865232317441890}
 --- !u!136 &8429865232317441892
 CapsuleCollider:
@@ -40236,3 +40293,4 @@ SceneRoots:
   - {fileID: 8704299791526712651}
   - {fileID: 7570283653548690443}
   - {fileID: 795315981}
+  - {fileID: 186041461}
