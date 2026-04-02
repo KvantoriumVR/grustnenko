@@ -4,15 +4,15 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Ground
+  - Mob
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Celling
   - Water
   - UI
-  - 
+  - Player
   - 
   - 
   - 
