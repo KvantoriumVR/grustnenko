@@ -566,6 +566,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5658663396156467023}
   - component: {fileID: 6089556477440143423}
+  - component: {fileID: 7921795831438062996}
+  - component: {fileID: 1431744643657405856}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Untagged
@@ -625,6 +627,35 @@ MonoBehaviour:
     actionPath: /actions/default/in/HeadsetOnHead
     needsReinit: 1
   allowToggleTo2D: 1
+--- !u!114 &7921795831438062996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576220269632116128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff806de2760dada499693782108eb27c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHealth: 3
+  _healthSlider: {fileID: 0}
+  _deathScreen: {fileID: 0}
+--- !u!114 &1431744643657405856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1576220269632116128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af73944a94079914d812916fced1aed2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interactRange: 2.5
+  _playerCamera: {fileID: 0}
 --- !u!1 &1587326230532597987
 GameObject:
   m_ObjectHideFlags: 0

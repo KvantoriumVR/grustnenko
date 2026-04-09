@@ -1,24 +1,24 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Экран смерти. Показывается при гибели игрока.
-/// Canvas всегда включён, включаются только фон и панель.
+/// Р­РєСЂР°РЅ СЃРјРµСЂС‚Рё. РџРѕРєР°Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РіРёР±РµР»Рё РёРіСЂРѕРєР°.
+/// Canvas РІСЃРµРіРґР° РІРєР»СЋС‡С‘РЅ, РІРєР»СЋС‡Р°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ С„РѕРЅ Рё РїР°РЅРµР»СЊ.
 /// </summary>
 public class DeathScreen : MonoBehaviour
 {
-    [Header("UI элементы")]
-    [Tooltip("Полупрозрачный чёрный фон (Image)")]
+    [Header("UI СЌР»РµРјРµРЅС‚С‹")]
+    [Tooltip("РџРѕР»СѓРїСЂРѕР·СЂР°С‡РЅС‹Р№ С‡С‘СЂРЅС‹Р№ С„РѕРЅ (Image)")]
     [SerializeField] private GameObject _background;
 
-    [Tooltip("Панель с кнопками и текстом")]
+    [Tooltip("РџР°РЅРµР»СЊ СЃ РєРЅРѕРїРєР°РјРё Рё С‚РµРєСЃС‚РѕРј")]
     [SerializeField] private GameObject _deathPanel;
 
-    [Tooltip("Кнопка перезапуска")]
+    [Tooltip("РљРЅРѕРїРєР° РїРµСЂРµР·Р°РїСѓСЃРєР°")]
     [SerializeField] private Button _restartButton;
 
-    [Tooltip("Кнопка выхода")]
+    [Tooltip("РљРЅРѕРїРєР° РІС‹С…РѕРґР°")]
     [SerializeField] private Button _exitButton;
 
     private void Start()
@@ -28,7 +28,7 @@ public class DeathScreen : MonoBehaviour
     }
 
     /// <summary>
-    /// Показать экран смерти
+    /// РџРѕРєР°Р·Р°С‚СЊ СЌРєСЂР°РЅ СЃРјРµСЂС‚Рё
     /// </summary>
     public void ShowDeathScreen()
     {
@@ -36,7 +36,7 @@ public class DeathScreen : MonoBehaviour
         _deathPanel.SetActive(true);
         Time.timeScale = 0f;
 
-        // Разблокируем курсор только для обычной версии (не VR)
+        // Р Р°Р·Р±Р»РѕРєРёСЂСѓРµРј РєСѓСЂСЃРѕСЂ С‚РѕР»СЊРєРѕ РґР»СЏ РѕР±С‹С‡РЅРѕР№ РІРµСЂСЃРёРё (РЅРµ VR)
         if (!UnityEngine.XR.XRSettings.isDeviceActive)
         {
             Cursor.lockState = CursorLockMode.None;
