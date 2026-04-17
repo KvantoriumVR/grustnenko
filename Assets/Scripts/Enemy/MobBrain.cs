@@ -45,10 +45,35 @@ public class MobBrain : MonoBehaviour
     private float _stuckTimer;                               // Таймер для проверки застревания
     private Vector3 _lastPosition;                           // Прошлая позиция (для проверки застревания)
 
+    // --- ОПТИМИЗАЦИЯ: кэширование для избежания аллокаций ---
+    private Vector3 _raycastOrigin = Vector3.zero;           // Кэш для луча (переиспользуем)
+    private Vector3 _dirToTarget = Vector3.zero;             // Кэш направления к цели
+    private float _sqrViewDistance;                          // Квадрат дистанции взгляда (быстрее чем Vector3.Distance)
+    private float _sqrScanRadius;                            // Квадрат дистанции слуха
+    private float _sqrAttackRange;                           // Квадрат дистанции атаки
+    private float _halfViewAngle;                            // Половина угла обзора (кэшируем)
+
+    // --- ОПТИМИЗАЦИЯ: интервалы обновления ---
+    private int _frameCounter;                               // Счётчик кадров
+    private const int SIGHT_CHECK_INTERVAL = 3;              // Проверяем зрение раз в 3 кадра
+    private const int STUCK_CHECK_INTERVAL = 60;             // Проверяем застревание ~раз в секунду (60 FPS)
+    private const int ANIMATION_UPDATE_INTERVAL = 2;         // Обновляем анимацию раз в 2 кадра
+    private const int TARGET_UPDATE_INTERVAL = 30;           // Проверяем активного игрока раз в 30 кадров
+
+    // --- ФИКС: кэшируем результат последней проверки зрения ---
+    private bool _cachedCanSeePlayer;                        // Запомненный результат проверки зрения
+    private int _lastSightCheckFrame = -999;                 // Когда последний раз проверяли зрение
+
     void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();               // Берём NavMeshAgent
         _anim = GetComponentInChildren<Animator>();          // Берём аниматор у детей
+
+        // --- ОПТИМИЗАЦИЯ: предвычисляем квадраты дистанций ---
+        _sqrViewDistance = _viewDistance * _viewDistance;
+        _sqrScanRadius = _scanRadius * _scanRadius;
+        _sqrAttackRange = _attackRange * _attackRange;
+        _halfViewAngle = _viewAngle * 0.5f;
     }
 
     void Start()
@@ -58,6 +83,7 @@ public class MobBrain : MonoBehaviour
 
         UpdateActivePlayer();                                // Определяем, какой игрок активен
         SetWanderPoint();                                    // Выбираем первую случайную точку
+        _lastPosition = transform.position;                  // Инициализируем прошлую позицию
     }
 
     // Определяет, какой игрок сейчас активен (FPS или VR)
@@ -75,27 +101,75 @@ public class MobBrain : MonoBehaviour
     {
         if (_target == null) return;                         // Нет цели - ничего не делаем
 
-        bool canSeePlayer = SeeTarget();                     // Видим ли игрока?
+        // --- ОПТИМИЗАЦИЯ: обновляем активного игрока не каждый кадр ---
+        _frameCounter++;
+        if (_frameCounter % TARGET_UPDATE_INTERVAL == 0)
+            UpdateActivePlayer();
+
+        // --- ОПТИМИЗАЦИЯ: проверка зрения с интервалом ---
+        bool canSeePlayer = _cachedCanSeePlayer;
+        int sightCheckRate = (_state == MobState.Chase) ? 1 : SIGHT_CHECK_INTERVAL;
+
+        if (_frameCounter - _lastSightCheckFrame >= sightCheckRate)
+        {
+            canSeePlayer = SeeTarget();
+            _cachedCanSeePlayer = canSeePlayer;
+            _lastSightCheckFrame = _frameCounter;
+        }
 
         UpdateState(canSeePlayer);                           // Обновляем состояние
-        SmoothRotation();                                    // Плавно поворачиваемся
+
+        // --- ОПТИМИЗАЦИЯ: поворот только если движемся ---
+        if (_agent.velocity.sqrMagnitude > 0.01f)
+            SmoothRotation();                                // Плавно поворачиваемся
+
         Act();                                               // Выполняем действие (идём к цели)
-        UpdateAnimation();                                   // Обновляем анимацию
+
+        // --- ОПТИМИЗАЦИЯ: анимация с интервалом ---
+        if (_frameCounter % ANIMATION_UPDATE_INTERVAL == 0)
+            UpdateAnimation();                               // Обновляем анимацию
+
         TryAttack();                                         // Пробуем атаковать
-        CheckStuck();                                        // Проверяем, не застряли ли
+
+        // --- ОПТИМИЗАЦИЯ: застревание с интервалом ---
+        if (_frameCounter % STUCK_CHECK_INTERVAL == 0)
+            CheckStuck();                                    // Проверяем, не застряли ли
+
+        // --- ФИКС: сбрасываем счётчик кадров чтобы не переполнился ---
+        if (_frameCounter > 10000)
+            _frameCounter = 0;
     }
 
     // Проверяет, видит ли моб игрока
     bool SeeTarget()
     {
-        Vector3 dir = _target.position - transform.position;
-        float dist = dir.magnitude;
+        // --- ОПТИМИЗАЦИЯ: используем sqrMagnitude вместо Distance ---
+        _dirToTarget.x = _target.position.x - transform.position.x;
+        _dirToTarget.y = _target.position.y - transform.position.y;
+        _dirToTarget.z = _target.position.z - transform.position.z;
 
-        if (dist > _viewDistance) return false;              // Слишком далеко
-        if (Vector3.Angle(transform.forward, dir) > _viewAngle * 0.5f) return false; // Не в угле обзора
+        float sqrDist = _dirToTarget.x * _dirToTarget.x +
+                        _dirToTarget.y * _dirToTarget.y +
+                        _dirToTarget.z * _dirToTarget.z;
+
+        if (sqrDist > _sqrViewDistance) return false;        // Слишком далеко
+
+        // --- ОПТИМИЗАЦИЯ: сначала проверяем угол (дешевле чем raycast) ---
+        if (Vector3.Angle(transform.forward, _dirToTarget) > _halfViewAngle)
+            return false; // Не в угле обзора
 
         // Луч из глаз моба (на высоте 0.8м) до игрока
-        if (Physics.Raycast(transform.position + Vector3.up * 0.8f, dir.normalized, dist, _obstacleMask))
+        // --- ОПТИМИЗАЦИЯ: используем временную переменную вместо new Vector3 ---
+        _raycastOrigin.x = transform.position.x;
+        _raycastOrigin.y = transform.position.y + 0.8f;
+        _raycastOrigin.z = transform.position.z;
+
+        float dist = Mathf.Sqrt(sqrDist); // Один sqrt для raycast
+
+        // --- ФИКС: нормализуем направление безопасно ---
+        Vector3 normalizedDir = _dirToTarget / dist;
+
+        if (Physics.Raycast(_raycastOrigin, normalizedDir, dist, _obstacleMask))
             return false;                                    // Стена загораживает
 
         return true;                                         // Вижу!
@@ -104,7 +178,7 @@ public class MobBrain : MonoBehaviour
     // Управляет состояниями: бродит -> слушает -> бежит
     void UpdateState(bool canSeePlayer)
     {
-        if (canSeePlayer)
+        if (canSeePlayer && _state != MobState.Chase)
         {
             _state = MobState.Chase;                         // Вижу - бегу
             _agent.speed = _runSpeed;
@@ -131,10 +205,16 @@ public class MobBrain : MonoBehaviour
             case MobState.Listen:
                 _timer -= Time.deltaTime;
 
-                // Раз в 10 кадров проверяем, не рядом ли игрок (слух)
-                if (Time.frameCount % 10 == 0)
+                // --- ОПТИМИЗАЦИЯ: слух с интервалом через счётчик кадров ---
+                if (_frameCounter % 10 == 0)
                 {
-                    if (Vector3.Distance(transform.position, _target.position) <= _scanRadius)
+                    // --- ОПТИМИЗАЦИЯ: используем sqrMagnitude ---
+                    float dx = _target.position.x - transform.position.x;
+                    float dy = _target.position.y - transform.position.y;
+                    float dz = _target.position.z - transform.position.z;
+                    float sqrDist = dx * dx + dy * dy + dz * dz;
+
+                    if (sqrDist <= _sqrScanRadius)
                     {
                         _state = MobState.Chase;             // Услышали - бежим
                         _agent.speed = _runSpeed;
@@ -153,12 +233,16 @@ public class MobBrain : MonoBehaviour
                 break;
 
             case MobState.Chase:
-                // Потеряли игрока из виду - возвращаемся к брождению
-                _state = MobState.Wander;
-                _agent.speed = _walkSpeed;
-                _agent.isStopped = false;
-                _timer = _scanInterval;
-                SetWanderPoint();
+                // --- ФИКС: выходим из погони только когда ТОЧНО не видим ---
+                if (!canSeePlayer)
+                {
+                    // Потеряли игрока из виду - возвращаемся к брождению
+                    _state = MobState.Wander;
+                    _agent.speed = _walkSpeed;
+                    _agent.isStopped = false;
+                    _timer = _scanInterval;
+                    SetWanderPoint();
+                }
                 break;
         }
     }
@@ -166,8 +250,6 @@ public class MobBrain : MonoBehaviour
     // Плавно поворачивает моба в сторону движения
     void SmoothRotation()
     {
-        if (_agent.velocity.sqrMagnitude < 0.1f) return;     // Стоим - не поворачиваемся
-
         Vector3 targetDirection = _agent.velocity.normalized; // Куда идём
 
         if (targetDirection != Vector3.zero)
@@ -188,7 +270,14 @@ public class MobBrain : MonoBehaviour
     void TryAttack()
     {
         if (_state != MobState.Chase) return;                // Не в погоне - не атакуем
-        if (Vector3.Distance(transform.position, _target.position) > _attackRange) return; // Далеко
+
+        // --- ОПТИМИЗАЦИЯ: используем sqrMagnitude вместо Distance ---
+        float dx = _target.position.x - transform.position.x;
+        float dy = _target.position.y - transform.position.y;
+        float dz = _target.position.z - transform.position.z;
+        float sqrDist = dx * dx + dy * dy + dz * dz;
+
+        if (sqrDist > _sqrAttackRange) return; // Далеко
         if (Time.time - _lastAttackTime < _attackCooldown) return; // Перезарядка
 
         PlayerHealth playerHealth = _target.GetComponentInChildren<PlayerHealth>();
@@ -226,12 +315,14 @@ public class MobBrain : MonoBehaviour
     // Проверяет, не застрял ли моб (не меняется позиция долгое время)
     void CheckStuck()
     {
-        _stuckTimer += Time.deltaTime;
-        if (_stuckTimer < 1.2f) return;                      // Проверяем раз в 1.2 секунды
-        _stuckTimer = 0;
+        // --- ОПТИМИЗАЦИЯ: используем sqrMagnitude ---
+        float dx = transform.position.x - _lastPosition.x;
+        float dy = transform.position.y - _lastPosition.y;
+        float dz = transform.position.z - _lastPosition.z;
+        float sqrDist = dx * dx + dy * dy + dz * dz;
 
         // Если почти не двигаемся, но должны
-        if (Vector3.Distance(transform.position, _lastPosition) < 0.15f && _agent.hasPath && _agent.remainingDistance > 0.8f)
+        if (sqrDist < 0.0225f && _agent.hasPath && _agent.remainingDistance > 0.8f) // 0.15^2 = 0.0225
         {
             transform.Rotate(0, Random.Range(-90f, 90f), 0);  // Поворачиваемся случайно
 

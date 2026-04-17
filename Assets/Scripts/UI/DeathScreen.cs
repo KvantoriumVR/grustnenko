@@ -21,6 +21,10 @@ public class DeathScreen : MonoBehaviour
     [Tooltip("Кнопка выхода")]
     [SerializeField] private Button _exitButton;
 
+    [Header("Мобы (перетащить всех)")]
+    [Tooltip("Массив мобов, которые будут отключены при смерти")]
+    [SerializeField] private MonoBehaviour[] _mobs;
+
     private void Start()
     {
         _restartButton.onClick.AddListener(RestartGame);
@@ -35,6 +39,10 @@ public class DeathScreen : MonoBehaviour
         _background.SetActive(true);
         _deathPanel.SetActive(true);
         Time.timeScale = 0f;
+
+        // Отключаем мобов
+        foreach (var mob in _mobs)
+            if (mob != null) mob.enabled = false;
 
         // Разблокируем курсор только для обычной версии (не VR)
         if (!UnityEngine.XR.XRSettings.isDeviceActive)
@@ -58,5 +66,11 @@ public class DeathScreen : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    private void OnDestroy()
+    {
+        _restartButton.onClick.RemoveListener(RestartGame);
+        _exitButton.onClick.RemoveListener(ExitGame);
     }
 }
